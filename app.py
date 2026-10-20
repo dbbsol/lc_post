@@ -9,6 +9,7 @@ from engine import render, LAYOUTS
 from templates import TEMPLATES
 from template_engine import render_tpl
 from dsl import render_dsl
+from carousel_icon import add_indicator          # <<< NOVO
 from export import to_pdf, to_zip
 
 st.set_page_config("Instagram Content Studio", "✦", layout="wide")
@@ -32,6 +33,7 @@ with st.sidebar:
     usetpl = modelo in TEMPLATES
     layout = st.selectbox("Layout", list(LAYOUTS), disabled=usetpl)
     theme = st.selectbox("Tema", list(THEMES), disabled=usetpl)
+    show_ind = st.toggle("Indicador de carrossel (seta e pontos)", True)          # <<< NOVO
     use_ai = st.toggle("Inteligência editorial (Gemini)", True)
     brand = st.text_input("Marca / @usuário", "")
     logo = st.file_uploader("Logo (opcional)", ["png", "jpg", "jpeg", "webp"])
@@ -121,6 +123,9 @@ if S.plan:
         ims, warns = render_tpl(sl, fmt, tpl, brand, ncont != n)
     else:
         ims, warns = render(sl, fmt, THEMES[theme], layout, imgs, brand, logo.getvalue() if logo else None)
+    if show_ind:
+        ims = [add_indicator(im, k, len(ims)) for k, im in enumerate(ims)]
+        
     with left:
         with st.container(key="stage"):
             st.markdown(f'<div class="slide-count">SLIDE {S.cur+1} / {len(ims)}</div>', unsafe_allow_html=True)
